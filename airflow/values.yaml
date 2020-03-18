@@ -49,7 +49,7 @@ airflow:
   ##
   ## The executor to use.
   ##
-  executor: Celery
+  executor: Kubernetes
   ##
   ## set the max number of retries during container initialization
   initRetryLoop:
@@ -64,10 +64,10 @@ airflow:
   image:
     ##
     ## docker-airflow image
-    repository: puckel/docker-airflow
+    repository: airflow
     ##
     ## image tag
-    tag: 1.10.4
+    tag: local
     ##
     ## Image pull policy
     ## values: Always or IfNotPresent
@@ -106,7 +106,36 @@ airflow:
   ##   config:
   ##     AIRFLOW__CORE__EXPOSE_CONFIG: "True"
   ##     HTTP_PROXY: "http://proxy.mycompany.com:123"
-  config: {}
+  config: 
+    AIRFLOW_DEPS: "kubernetes"
+    # Kubernetes
+    AIRFLOW__CORE__EXECUTOR: KubernetesExecutor
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: airflow
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: local
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: IfNotPresent
+
+    AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME: airflow
+    # AIRFLOW__KUBERNETES__DAGS_VOLUME_CLAIM: airflow
+    AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: repo
+    AIRFLOW__KUBERNETES__NAMESPACE: airflow
+    AIRFLOW__KUBERNETES__DELETE_WORKER_PODS: false
+    AIRFLOW__KUBERNETES__KUBE_CLIENT_REQUEST_ARGS: '{\"_request_timeout\":60}'
+
+    ## GIT
+    AIRFLOW__KUBERNETES__GIT_REPO: "https://github.com/dmilan77/test-airflow-dag.git"
+    AIRFLOW__KUBERNETES__GIT_BRANCH: master
+    AIRFLOW__KUBERNETES__GIT_DAGS_FOLDER_MOUNT_POINT: /usr/local/airflow/dags
+    AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: repo
+
+    # # GIT
+    # GIT_SYNC_REPO: "https://github.com/dmilan77/test-airflow-dag.git"
+    # GIT_SYNC_BRANCH: "master"
+    # GIT_SYNC_ROOT: "/git"
+    # GIT_SYNC_DEST: "sync"
+    # GIT_SYNC_DEPTH: "1"
+    # GIT_SYNC_ONE_TIME: "false"
+    # GIT_SYNC_WAIT: "60"
+   
   ##
   ## Configure pod disruption budget for the scheduler
   podDisruptionBudgetEnabled: true
@@ -153,14 +182,12 @@ airflow:
   #     - mountPath: /usr/local/airflow/logs
   #       name: logs-data
 
-  extraContainers: []
+  extraContainers: 
   ## Additional containers to run alongside the Scheduler, Worker and Web pods
   ## This could, for example, be used to run a sidecar that syncs DAGs from object storage.
-  # - name: s3-sync
-  #   image: my-user/s3sync:latest
-  #   volumeMounts:
-  #   - name: synchronised-dags
-  #     mountPath: /dags
+  # - name: git-sync
+  #   image: k8s.gcr.io/git-sync:v3.1.1
+
   extraVolumeMounts: []
   ## Additional volumeMounts to the main containers in the Scheduler, Worker and Web pods.
   # - name: synchronised-dags
@@ -201,7 +228,7 @@ scheduler:
   tolerations: []
 
 flower:
-  enabled: true
+  enabled: false
   ##
   ## Set AIRFLOW__CELERY__FLOWER_URL_PREFIX
   ## Prefix should match Ingress configuration ingress.flower.path
@@ -260,7 +287,7 @@ web:
   ## Pod Annotations for the web deployment
   podAnnotations: {}
   initialStartupDelay: "60"
-  initialDelaySeconds: "360"
+  initialDelaySeconds: "120"
   minReadySeconds: 120
   readinessProbe:
     periodSeconds: 60
@@ -291,7 +318,7 @@ web:
 ##
 ## Workers configuration
 workers:
-  enabled: true
+  enabled: false
   ##
   ## Number of workers pod to launch
   replicas: 1
@@ -531,7 +558,7 @@ dags:
   git:
     ##
     ## url to clone the git repository
-    url:
+    url: https://github.com/dmilan77/test-airflow-dag.git
     ##
     ## branch name, tag or sha1 to reset to
     ref: master
@@ -543,7 +570,7 @@ dags:
     privateKeyName: ""
     gitSync:
       ## Turns on the side car container
-      enabled: false
+      enabled: true
       ## Image for the side car container
       image:
         ## docker-airflow image
@@ -554,10 +581,10 @@ dags:
         ## values: Always or IfNotPresent
         pullPolicy: IfNotPresent
       ## The amount of time in seconds to git pull dags
-      refreshTime:
+      refreshTime: 30
   initContainer:
     ## Fetch the source code when the pods starts
-    enabled: false
+    enabled: true
     ## Image for the init container (any image with git will do)
     image:
       ## docker-airflow image
@@ -654,7 +681,7 @@ redis:
   ##
   ## Use the redis chart dependency.
   ## Set to false if bringing your own redis.
-  enabled: true
+  enabled: false
 
   ##
   ## The name of an existing secret that contains the redis password.

@@ -64,10 +64,10 @@ airflow:
   image:
     ##
     ## docker-airflow image
-    repository: dmilan/docker-airflow
+    repository: airflow
     ##
     ## image tag
-    tag: latest
+    tag: local
     ##
     ## Image pull policy
     ## values: Always or IfNotPresent
@@ -109,14 +109,16 @@ airflow:
   config: 
     AIRFLOW_DEPS: "kubernetes"
     # Kubernetes
-    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: dmilan/docker-airflow
-    AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: latest
+    AIRFLOW__CORE__EXECUTOR: KubernetesExecutor
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: airflow
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: local
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: IfNotPresent
 
     AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME: airflow
     AIRFLOW__KUBERNETES__DAGS_VOLUME_CLAIM: airflow
     AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: airflow/development/dags
     AIRFLOW__KUBERNETES__NAMESPACE: airflow
+    AIRFLOW__KUBERNETES__DELETE_WORKER_PODS: false
     AIRFLOW__KUBERNETES__KUBE_CLIENT_REQUEST_ARGS: '{\"_request_timeout\":60}'
     # # GIT
     # GIT_SYNC_REPO: "https://github.com/dmilan77/test-airflow-dag.git"
@@ -278,7 +280,7 @@ web:
   ## Pod Annotations for the web deployment
   podAnnotations: {}
   initialStartupDelay: "60"
-  initialDelaySeconds: "70"
+  initialDelaySeconds: "120"
   minReadySeconds: 120
   readinessProbe:
     periodSeconds: 60
