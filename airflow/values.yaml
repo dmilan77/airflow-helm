@@ -64,7 +64,7 @@ airflow:
   image:
     ##
     ## docker-airflow image
-    repository: airflow
+    repository: dmilan/docker-airflow
     ##
     ## image tag
     tag: local
@@ -110,7 +110,7 @@ airflow:
     AIRFLOW_DEPS: "kubernetes"
     # Kubernetes
     AIRFLOW__CORE__EXECUTOR: KubernetesExecutor
-    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: airflow
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: dmilan/docker-airflow
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: local
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: IfNotPresent
 
