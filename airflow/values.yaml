@@ -37,7 +37,7 @@ airflow:
   ## Generate fernetKey with:
   ##    python -c "from cryptography.fernet import Fernet; FERNET_KEY = Fernet.generate_key().decode(); print(FERNET_KEY)"
   ## fernetKey: ABCDABCDABCDABCDABCDABCDABCDABCDABCDABCD
-  fernetKey: ""
+  fernetKey: "SKJOM8uzLY6xAxPt8qFN2BcprPl-iPz_tMt9ktmfd_E="
   service:
     annotations: {}
     sessionAffinity: "None"
@@ -67,7 +67,7 @@ airflow:
     repository: dmilan/docker-airflow
     ##
     ## image tag
-    tag: local
+    tag: v1
     ##
     ## Image pull policy
     ## values: Always or IfNotPresent
@@ -107,11 +107,9 @@ airflow:
   ##     AIRFLOW__CORE__EXPOSE_CONFIG: "True"
   ##     HTTP_PROXY: "http://proxy.mycompany.com:123"
   config: 
-    AIRFLOW_DEPS: "kubernetes"
-    # Kubernetes
-    AIRFLOW__CORE__EXECUTOR: KubernetesExecutor
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:abc123@postgres-service:5432/airflow"
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: dmilan/docker-airflow
-    AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: local
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: v1
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: IfNotPresent
 
     AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME: airflow
@@ -286,16 +284,16 @@ web:
   annotations: {}
   ## Pod Annotations for the web deployment
   podAnnotations: {}
-  initialStartupDelay: "60"
+  initialStartupDelay: "20"
   initialDelaySeconds: "120"
   minReadySeconds: 120
   readinessProbe:
-    periodSeconds: 60
+    periodSeconds: 20
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 5
   livenessProbe:
-    periodSeconds: 60
+    periodSeconds: 20
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 5
@@ -633,7 +631,7 @@ postgresql:
   ##
   ## Use the PostgreSQL chart dependency.
   ## Set to false if bringing your own PostgreSQL.
-  enabled: true
+  enabled: false
 
   ##
   ## The name of an existing secret that contains the postgres password.
@@ -645,7 +643,7 @@ postgresql:
   ##
   ## If you are bringing your own PostgreSQL, you should set postgresHost and
   ## also probably service.port, postgresqlUsername, postgresqlPassword, and postgresqlDatabase
-  ## postgresHost:
+  postgresHost: postgres-service
   ##
   ## PostgreSQL port
   service:
@@ -655,7 +653,7 @@ postgresql:
   ##
   ## PostgreSQL Password for the new user.
   ## If not set, a random 10 characters password will be used.
-  postgresqlPassword: airflow
+  postgresqlPassword: abc123
   ##
   ## PostgreSQL Database to create.
   postgresqlDatabase: airflow
@@ -692,7 +690,7 @@ redis:
 
   ##
   ## If you are bringing your own redis, you can set the host in redisHost.
-  ## redisHost:
+  redisHost: badhost
   ##
   ## Redis password
   ##
