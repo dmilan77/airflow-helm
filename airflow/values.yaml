@@ -64,7 +64,7 @@ airflow:
   image:
     ##
     ## docker-airflow image
-    repository: dmilan/docker-airflow
+    repository: dmilan/docker-airflow-v2
     ##
     ## image tag
     tag: v1
@@ -108,7 +108,7 @@ airflow:
   ##     HTTP_PROXY: "http://proxy.mycompany.com:123"
   config: 
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:abc123@postgres-service:5432/airflow"
-    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: dmilan/docker-airflow
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: dmilan/docker-airflow-v2
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: v1
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: IfNotPresent
 
