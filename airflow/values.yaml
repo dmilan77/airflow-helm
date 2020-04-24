@@ -107,23 +107,25 @@ airflow:
   ##     AIRFLOW__CORE__EXPOSE_CONFIG: "True"
   ##     HTTP_PROXY: "http://proxy.mycompany.com:123"
   config: 
-    AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:abc123@postgres-service:5432/airflow"
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:abc123@postgres-service.default.svc.cluster.local:5432/airflow"
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: dmilan/docker-airflow-v2
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: v1
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: IfNotPresent
 
     AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME: airflow
     # AIRFLOW__KUBERNETES__DAGS_VOLUME_CLAIM: airflow
-    AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: repo
+    # AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: dags
     AIRFLOW__KUBERNETES__NAMESPACE: airflow
-    # AIRFLOW__KUBERNETES__DELETE_WORKER_PODS: True
+    AIRFLOW__KUBERNETES__DELETE_WORKER_PODS: False
     AIRFLOW__KUBERNETES__KUBE_CLIENT_REQUEST_ARGS: '{\"_request_timeout\":60}'
 
     ## GIT
     AIRFLOW__KUBERNETES__GIT_REPO: "https://github.com/dmilan77/test-airflow-dag.git"
     AIRFLOW__KUBERNETES__GIT_BRANCH: master
     AIRFLOW__KUBERNETES__GIT_DAGS_FOLDER_MOUNT_POINT: /usr/local/airflow/dags
-    AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: repo
+    AIRFLOW__KUBERNETES__GIT_SYNC_DEST: /usr/local/airflow/dags
+    AIRFLOW__KUBERNETES__GIT_SYNC_ROOT: /usr/local/airflow/dags
+    AIRFLOW__KUBERNETES__GIT_SYNC_RUN_AS_USER: 0
 
     # # GIT
     # GIT_SYNC_REPO: "https://github.com/dmilan77/test-airflow-dag.git"
@@ -574,7 +576,7 @@ dags:
         ## docker-airflow image
         repository: alpine/git
         ## image tag
-        tag: 1.0.7
+        tag: 1.0.11
         ## Image pull policy
         ## values: Always or IfNotPresent
         pullPolicy: IfNotPresent
@@ -588,7 +590,7 @@ dags:
       ## docker-airflow image
       repository: alpine/git
       ## image tag
-      tag: 1.0.7
+      tag: 1.0.11
       ## Image pull policy
       ## values: Always or IfNotPresent
       pullPolicy: IfNotPresent
@@ -620,7 +622,7 @@ serviceAccount:
   create: true
   ## The name of the ServiceAccount to use.
   ## If not set and create is true, a name is generated using the fullname template
-  name:
+  name: airflow
   annotations: {}
 
 
@@ -643,7 +645,7 @@ postgresql:
   ##
   ## If you are bringing your own PostgreSQL, you should set postgresHost and
   ## also probably service.port, postgresqlUsername, postgresqlPassword, and postgresqlDatabase
-  postgresHost: postgres-service
+  postgresHost: postgres-service.default.svc.cluster.local
   ##
   ## PostgreSQL port
   service:
